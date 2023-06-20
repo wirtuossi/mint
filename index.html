@@ -1,40 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Криптовалютный сайт</title>
+    <title>Прогретость криптокошельков</title>
 </head>
 <body>
-    <h1>Криптовалютный сайт</h1>
+    <h1>Прогретость криптокошельков</h1>
 
-    <!-- Форма для ввода криптокошелька -->
+    <!-- Форма для ввода списка криптокошельков -->
     <form id="walletForm">
-        <label for="walletInput">Введите адрес криптокошелька:</label>
-        <input type="text" id="walletInput" placeholder="Адрес криптокошелька">
-        <button type="submit">Получить информацию</button>
+        <label for="walletInput">Введите список криптокошельков (разделяйте запятыми):</label>
+        <textarea id="walletInput" placeholder="Криптокошельки" rows="5"></textarea>
+        <button type="submit">Проверить</button>
     </form>
 
-    <!-- Результаты информации о криптокошельке -->
-    <div id="walletInfo"></div>
+    <!-- Результаты прогретости криптокошельков -->
+    <div id="result"></div>
 
     <script>
-        // Функция для получения информации о криптокошельке
-        function getWalletInfo(walletAddress) {
+        // Функция для проверки прогретости криптокошельков
+        function checkWallets(wallets) {
             // Создание HTTP-запроса
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://api.example.com/wallet/' + walletAddress, true);
+            xhr.open('POST', 'https://api.example.com/check-wallets', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
 
             // Обработчик события загрузки данных
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     // Парсинг полученных данных в формат JSON
-                    var walletInfo = JSON.parse(xhr.responseText);
+                    var result = JSON.parse(xhr.responseText);
                     
-                    // Формирование HTML-кода с информацией о криптокошельке
-                    var html = '<p>Адрес криптокошелька: ' + walletInfo.address + '</p>';
-                    html += '<p>Баланс: ' + walletInfo.balance + ' BTC</p>';
+                    // Формирование HTML-кода с результатами прогретости криптокошельков
+                    var html = '';
+                    for (var i = 0; i < result.length; i++) {
+                        var wallet = result[i];
+                        html += '<p>Криптокошелек: ' + wallet.address + '</p>';
+                        html += '<p>Прогретость: ' + wallet.heat + '</p>';
+                    }
                     
-                    // Вывод информации в элемент с id "walletInfo"
-                    document.getElementById('walletInfo').innerHTML = html;
+                    // Вывод результатов в элемент с id "result"
+                    document.getElementById('result').innerHTML = html;
                 } else {
                     // Обработка ошибок при выполнении запроса
                     console.error('Ошибка запроса. Статус:', xhr.status);
@@ -46,15 +51,19 @@
                 console.error('Ошибка сети');
             };
 
-            // Отправка запроса
-            xhr.send();
+            // Отправка запроса с данными списка криптокошельков
+            xhr.send(JSON.stringify(wallets));
         }
 
-        // Обработчик события отправки формы для получения информации о криптокошельке
+        // Обработчик события отправки формы для проверки прогретости криптокошельков
         document.getElementById('walletForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            const walletAddress = document.getElementById('walletInput').value.trim();
-            getWalletInfo(walletAddress);
+            var walletsInput = document.getElementById('walletInput');
+            var walletsList = walletsInput.value.trim().split(',');
+            var wallets = walletsList.map(function(wallet) {
+                return wallet.trim();
+            });
+            checkWallets(wallets);
         });
     </script>
 </body>
