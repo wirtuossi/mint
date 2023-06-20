@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Сминт NFT на криптокошельки в сети Polygon</title>
+</head>
+<body>
+    <h1>Сминт NFT на криптокошельки в сети Polygon</h1>
+
+    <textarea id="walletAddresses" placeholder="Список криптокошельков (один адрес на строку)"></textarea>
+    <button onclick="mintAllNFTs()">Сминтить все NFT</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <script>
+        async function mintAllNFTs() {
+            const walletAddressesInput = document.getElementById("walletAddresses");
+            const walletAddresses = walletAddressesInput.value.trim().split("\n");
+
+            const nftContractAddress = "0xNFTContractAddress"; // Адрес контракта NFT на сети Polygon
+
+            try {
+                // Подключение к блокчейну с использованием Web3.js
+                const web3 = new Web3(window.ethereum);
+
+                // Подключение к контракту NFT
+                const nftContract = new web3.eth.Contract(NFTContractABI, nftContractAddress);
+
+                // Итерация по списку криптокошельков и сминт NFT
+                for (const walletAddress of walletAddresses) {
+                    try {
+                        // Сминт NFT для текущего криптокошелька
+                        const transaction = await nftContract.methods.mintNFT(walletAddress).send({ from: walletAddress });
+
+                        console.log(`Сминт NFT для кошелька ${walletAddress}:`, transaction);
+                    } catch (error) {
+                        console.error(`Ошибка сминта NFT для кошелька ${walletAddress}:`, error);
+                    }
+                }
+            } catch (error) {
+                console.error("Ошибка подключения к контракту NFT:", error);
+            }
+        }
+    </script>
+</body>
+</html>
